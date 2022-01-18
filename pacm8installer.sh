@@ -134,11 +134,11 @@ fi
 if
   [ $docker == 'y' ]
 then
-  exists git
+  exists docker
   echo 'Docker found!'
 else
   echo 'Docker not found. Installing.'
-  apt install git -y
+  apt install docker -y
   echo 'Now you have docker.'
 fi
 
@@ -154,11 +154,11 @@ fi
 if
   [ $lzt == 'y' ]
 then
-  exists git
+  exists docker-compose
   echo 'Docker-compose found!'
 else
   echo 'Docker-compose not found. Installing.'
-  apt install git -y
+  apt install docker-compose -y
   echo 'Now you have docker-compose.'
 fi
 
