@@ -1,4 +1,25 @@
+
 #!/usr/bin/env bash
+
+# ----------------------------------
+#-COLORZ-
+# ----------------------------------
+NOCOLOR='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+LIGHTGRAY='\033[0;37m'
+DARKGRAY='\033[1;30m'
+LIGHTRED='\033[1;31m'
+LIGHTGREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+LIGHTBLUE='\033[1;34m'
+LIGHTPURPLE='\033[1;35m'
+LIGHTCYAN='\033[1;36m'
+WHITE='\033[1;37m'
 
 #~WELCOME MESSAGE~
 cat << "EOF"
@@ -22,16 +43,16 @@ cat << "EOF"
 
 EOF
 
-#~CHECK IS YOU CONNECTED TO THE WORLD~
+#~CHECK IF YOU ARE CONNECTED TO THE WORLD~
 echo " "
 wget -q --spider http://google.com
 
 if
   [ $? -eq 0 ]
 then
-  echo 'Ok, you are online, lets begin.'
+  printf "${GREEN}Ok, you are online, lets begin.${NOCOLOR}"
 else
-  echo 'Seem like you are offline, where is nothing i can do without internet connection.'
+  printf "${RED}Seem like you are offline, where is nothing i can do without internet connection.${NOCOLOR}"
   exit
 fi
 
@@ -55,6 +76,7 @@ exists()
   command -v "$1" >/dev/null 2>&1
 }
 
+
 #~INSTALLIG PACMATE N CHECKING FOR GIT~
 echo " "
 read -p 'Checking for git, if it installed. If not, i will install it for you - y/n: ' lzt
@@ -70,24 +92,42 @@ if
   [ $lzt == 'y' ]
 then
   exists git
-  echo 'Git found!'
+  printf "${GREEN}Git found!${NOCOLOR}"
 else
-  echo 'Git not found. Installing.'
+  printf "${RED}Git not found.${NOLOCOR} Installing."
   apt install git -y
   echo 'Now you have git.'
 fi
 
-read -p 'Git was found, and im ready to install pacmate, are you ready - y/n: ' git
+echo " "
+read -p 'Git was found/install, so im ready to install pacmate, are you ready - y/n: ' git
 
 if
   [ $git == 'y' ]
 then
-git clone --recurse-submodules https://gitlab.com/packmate/Packmate.git && cd Packmate
-touch ".env"
+  git clone --recurse-submodules https://gitlab.com/packmate/Packmate.git 2>/dev/null &
+pid=$! # Process Id of the previous running command
+
+spin='-\|/'
+
+i=0
+while kill -0 $pid 2>/dev/null
+do
+  i=$(( (i+1) %4 ))
+  printf "\r${spin:$i:1}" " "
+  sleep .1
+done
+
+printf "${GREEN}Successful!${NOCOLOR}"
+echo " "
+
+  cd Packmate
+  touch ".env"
 elif
   [ $git == 'n' ]
 then
   echo 'What do you want from me then, kutabare.'
+  exit
 else
   echo 'fuck you.'
   exit
@@ -135,10 +175,27 @@ if
   [ $docker == 'y' ]
 then
   exists docker
-  echo 'Docker found!'
+  echo " "
+  printf "${GREEN}Docker found!${NOCOLOR}"
 else
-  echo 'Docker not found. Installing.'
-  apt install docker -y
+  printf "${RED}Docker not found.${NOCOLOR} Installing." 
+    apt install docker -y 2>/dev/null &
+pid=$! # Process Id of the previous running command
+
+spin='-\|/'
+
+i=0
+while kill -0 $pid 2>/dev/null
+do
+  i=$(( (i+1) %4 ))
+  printf "\r${spin:$i:1}" " "
+  sleep .1
+done
+
+printf "${GREEN}Successful!${NOCOLOR}"
+echo " "
+  
+  echo " "
   echo 'Now you have docker.'
 fi
 
@@ -155,15 +212,31 @@ if
   [ $lzt == 'y' ]
 then
   exists docker-compose
-  echo 'Docker-compose found!'
+  printf "${GREEN}Docker-compose found!${NOCOLOR}"
 else
-  echo 'Docker-compose not found. Installing.'
-  apt install docker-compose -y
+  printf "${RED}Docker-compose not found.${NOCOLOR} Installing."
+  apt install docker-compose -y 2>/dev/null &
+pid=$! # Process Id of the previous running command
+
+spin='-\|/'
+
+i=0
+while kill -0 $pid 2>/dev/null
+do
+  i=$(( (i+1) %4 ))
+  printf "\r${spin:$i:1}" " "
+  sleep .1
+done
+
+printf "${GREEN}Successful!${NOCOLOR}"
+echo " "
+
+  echo " "
   echo 'Now you have docker-compose.'
 fi
 
 
-
+echo " "
 read -p 'Finally. Now we can deploy your pacmate and start analyzing some traffic! Make some noise - y/n: ' noise
 
 if
