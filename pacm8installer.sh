@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 
 # ----------------------------------
@@ -91,13 +90,26 @@ then
 fi
 
 if
-  [ "$lzt" == "y" ]
-then
-  exists git
+  exists git && [ "$lzt" == "y" ]; then
   printf "${GREEN}Git found!${NOCOLOR}"
 else
+  ! exists git
   printf "${RED}Git not found.${NOLOCOR} Installing."
-  apt install git -y
+  apt install git -y 2>/dev/null &
+pid=$! # Process Id of the previous running command
+
+spin='-\|/'
+
+i=0
+while kill -0 $pid 2>/dev/null
+do
+  i=$(( (i+1) %4 ))
+  printf "\r${spin:$i:1}" " "
+  sleep .1
+done
+
+  printf "${GREEN}Successful!${NOCOLOR}"
+  echo " "
   echo 'Now you have git.'
 fi
 
@@ -152,7 +164,7 @@ PACKMATE_WEB_PASSWORD=$pass
 PACKMATE_MODE=LIVE
 PACKMATE_INTERFACE=$interface" > '.env'
 
-  echo 'Uuh, well, thats it, done.'
+  printf "${GREEN}Uuh, well, thats it, done.${NOCOLOR}"
 elif
   [ "$cawabanga" == "n" ]
 then
@@ -173,14 +185,16 @@ then
   exit
 fi
 
+echo " "
+
 if
-  [ "$docker" == "y" ]
-then
-  exists docker
+  exists docker && [ "$docker" == "y" ]; then
   echo " "
   printf "${GREEN}Docker found!${NOCOLOR}"
 else
+  ! exists
   printf "${RED}Docker not found.${NOCOLOR} Installing." 
+  echo " "
     apt install docker -y 2>/dev/null &
 pid=$! # Process Id of the previous running command
 
@@ -197,8 +211,8 @@ done
 printf "${GREEN}Successful!${NOCOLOR}"
 echo " "
   
-  echo " "
-  echo 'Now you have docker.'
+echo " "
+echo 'Now you have docker.'
 fi
 
 read -p 'Checking for docker-compose, if it installed. If not, i will install it for you - y/n: ' lzt
@@ -210,13 +224,16 @@ then
   exit
 fi
 
+echo " "
+
 if
-  [ "$lzt" == "y" ]
-then
+  exists docker-compose && [ "$lzt" == "y" ]; then
   exists docker-compose
   printf "${GREEN}Docker-compose found!${NOCOLOR}"
 else
+  ! exists
   printf "${RED}Docker-compose not found.${NOCOLOR} Installing."
+  echo " "
   apt install docker-compose -y 2>/dev/null &
 pid=$! # Process Id of the previous running command
 
