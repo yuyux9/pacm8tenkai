@@ -60,9 +60,11 @@ fi
 echo " "
 read -p 'This script will install, set and deploy pacmate. To continue press y/n (to not): ' agree
 
-if [ $agree == 'y' ]; then
+if 
+  [ "$agree" == "y" ]; then
   echo 'Lets begin then.'
-elif [ $agree == 'n' ]; then
+elif 
+  [ "$agree" == "n" ]; then
   echo 'Bye then.'
   exit
 else
@@ -82,14 +84,14 @@ echo " "
 read -p 'Checking for git, if it installed. If not, i will install it for you - y/n: ' lzt
 
 if
-  [ $lzt == 'n' ]
+  [ "$lzt" == "n" ]
 then
   echo 'Fuck you then.'
   exit
 fi
 
 if
-  [ $lzt == 'y' ]
+  [ "$lzt" == "y" ]
 then
   exists git
   printf "${GREEN}Git found!${NOCOLOR}"
@@ -103,7 +105,7 @@ echo " "
 read -p 'Git was found/install, so im ready to install pacmate, are you ready - y/n: ' git
 
 if
-  [ $git == 'y' ]
+  [ "$git" == "y" ]
 then
   git clone --recurse-submodules https://gitlab.com/packmate/Packmate.git 2>/dev/null &
 pid=$! # Process Id of the previous running command
@@ -124,7 +126,7 @@ echo " "
   cd Packmate
   touch ".env"
 elif
-  [ $git == 'n' ]
+  [ "$git" == "n" ]
 then
   echo 'What do you want from me then, kutabare.'
   exit
@@ -142,7 +144,7 @@ read -p 'Now tell me name of your game interface: ' interface
 read -p 'Ok, we are ready to make your config file, cawabanga - y/n: ' cawabanga
 
 if
-  [ $cawabanga == 'y' ]
+  [ "$cawabanga" == "y" ]
 then
   echo "PACKMATE_LOCAL_IP=$ip
 PACKMATE_WEB_LOGIN=$uname
@@ -152,7 +154,7 @@ PACKMATE_INTERFACE=$interface" > '.env'
 
   echo 'Uuh, well, thats it, done.'
 elif
-  [ $cawabanga == 'n' ]
+  [ "$cawabanga" == "n" ]
 then
   echo 'There is need to be y, but you pick n, fuck you, uwu.'
 else
@@ -165,14 +167,14 @@ echo " "
 read -p 'Checking for docker, if it installed. If not, i will install it for you - y/n: ' docker
 
 if
-  [ $docker == 'n' ]
+  [ "$docker" == "n" ]
 then
   echo 'Fuck you then.'
   exit
 fi
 
 if
-  [ $docker == 'y' ]
+  [ "$docker" == "y" ]
 then
   exists docker
   echo " "
@@ -209,7 +211,7 @@ then
 fi
 
 if
-  [ $lzt == 'y' ]
+  [ "$lzt" == "y" ]
 then
   exists docker-compose
   printf "${GREEN}Docker-compose found!${NOCOLOR}"
@@ -240,14 +242,14 @@ echo " "
 read -p 'Finally. Now we can deploy your pacmate and start analyzing some traffic! Make some noise - y/n: ' noise
 
 if
-  [ $noise == 'y' ]
+  [ "$noise" == "y" ]
 then
   sudo docker-compose up --build -d
   echo " "
   echo 'Pacmate now running in background, to stop it, type: docker-compose down.'
   echo It should be on "$ip":65000
 elif
-  [ $noise == 'n' ]
+  [ "$noise" == "n" ]
 then
   echo 'As you want, cap.'
 fi
