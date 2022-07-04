@@ -215,10 +215,10 @@ echo " "
 echo 'Now you have docker.'
 fi
 
-read -p 'Checking for docker-compose, if it installed. If not, i will install it for you - y/n: ' lzt
+read -p 'Checking for docker-compose, if it installed. If not, i will install it for you - y/n: ' lztt
 
 if
-  [ $lzt == 'n' ]
+  [ "$lztt" == "n" ]
 then
   echo 'Fuck you then.'
   exit
@@ -227,8 +227,7 @@ fi
 echo " "
 
 if
-  exists docker-compose && [ "$lzt" == "y" ]; then
-  exists docker-compose
+  exists docker-compose && [ "$lztt" == "y" ]; then
   printf "${GREEN}Docker-compose found!${NOCOLOR}"
 else
   ! exists
