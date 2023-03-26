@@ -189,8 +189,8 @@ echo " "
 
 if
   exists docker && [ "$docker" == "y" ]; then
-  echo " "
   printf "${GREEN}Docker found!${NOCOLOR}"
+  echo " "
 else
   ! exists
   printf "${RED}Docker not found.${NOCOLOR} Installing." 
