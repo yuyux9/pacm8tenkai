@@ -169,7 +169,7 @@ OLD_STREAMS_CLEANUP_THRESHOLD=240
 DB_PASSWORD=K604YnL3G1hp2RDkCZNjGpxbyNpNHTRA
 PACKMATE_INTERFACE=$interface" > '.env'
 
-  cd docker && sed -i "s/65000/$pport/g" Dockerfile_app
+  cd docker && sed -i "s/65000/$pport/g" Dockerfile_app && cd ..
 
   printf "${GREEN}Uuh, well, thats it, done.${NOCOLOR}"
 elif
