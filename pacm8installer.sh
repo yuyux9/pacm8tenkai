@@ -169,37 +169,7 @@ OLD_STREAMS_CLEANUP_THRESHOLD=240
 DB_PASSWORD=K604YnL3G1hp2RDkCZNjGpxbyNpNHTRA
 PACKMATE_INTERFACE=$interface" > '.env'
 
-  cd docker && rm Dockerfile_app && touch Dockerfile_app
-  echo "FROM node:19-alpine
-WORKDIR /tmp/build/
-COPY ./frontend/ .
-RUN export NODE_OPTIONS=--openssl-legacy-provider && npm install && npm run build
-
-FROM eclipse-temurin:17-jdk
-WORKDIR /tmp/compile/
-COPY ./ .
-COPY --from=0 /tmp/build/dist/ ./src/main/resources/static/
-RUN ./gradlew --no-daemon bootJar
-
-FROM eclipse-temurin:17-jre
-WORKDIR /app
-RUN apt update && apt install -y libpcap0.8 && rm -rf /var/lib/apt/lists/*
-COPY --from=1 /tmp/compile/build/libs/packmate-*-SNAPSHOT.jar app.jar
-
-CMD [ "java", "-Djava.net.preferIPv4Stack=true", "-Djava.net.preferIPv4Addresses=true",  \
-      "-jar", "/app/app.jar", "--spring.datasource.url=jdbc:postgresql://127.0.0.1:65001/packmate", \
-      "--spring.datasource.password=${DB_PASSWORD}", \
-      "--packmate.capture-mode=${MODE}", "--packmate.pcap-file=${PCAP_FILE}", \
-      "--packmate.interface-name=${INTERFACE}", "--packmate.local-ip=${LOCAL_IP}", \
-      "--packmate.web.account-login=${WEB_LOGIN}", "--packmate.web.account-password=${WEB_PASSWORD}", \
-      "--packmate.cleanup.enabled=${OLD_STREAMS_CLEANUP_ENABLED}", \
-      "--packmate.cleanup.interval=${OLD_STREAMS_CLEANUP_INTERVAL}", \
-      "--packmate.cleanup.threshold=${OLD_STREAMS_CLEANUP_THRESHOLD}", \
-      "--server.port=$pport", "--server.address=0.0.0.0" \
-]
-
-EXPOSE $pport" > 'Dockerfile_app'
-  cd ..
+  cd docker && sed -i "s/65000/$pport/g" Dockerfile_app
 
   printf "${GREEN}Uuh, well, thats it, done.${NOCOLOR}"
 elif
