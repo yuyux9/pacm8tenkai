@@ -271,7 +271,8 @@ then
   echo " "
   echo 'Pacmate now running in background, to stop it, type: docker-compose down.'
   echo " "
-  echo"
+  echo "
+
   +-----------------------------------++----------------------------------+
   |       PACMATE IS RUNNING ON       ||        PACMATE CREDENTIALS       |
   +-----------------------------------++----------------------------------+
