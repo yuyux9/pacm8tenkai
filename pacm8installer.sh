@@ -51,8 +51,7 @@ if
 then
   printf "${GREEN}Ok, you are online, lets begin.${NOCOLOR}"
 else
-  printf "${RED}Seem like you are offline, where is nothing i can do without internet connection.${NOCOLOR}"
-  exit
+  printf "${RED}Seem like you are offline, i cannot pong google.com.${NOCOLOR}"
 fi
 
 #~USER AGREEDMENT~
