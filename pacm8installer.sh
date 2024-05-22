@@ -176,7 +176,7 @@ echo " "
 if gum confirm "Finally, do you want to deploy your pacmate?"; then
     sudo docker-compose up --build -d
     gum style --foreground 2 --border double --border-foreground 3 --margin "1" --padding "1" \
-    "PACMATE IS RUNNING ON\n\n${ip}:${pport}\n\nPACMATE CREDENTIALS\n\n${uname}//${pass}"
+    "PACMATE IS RUNNING ON - ${ip}:${pport} & PACMATE CREDENTIALS - ${uname}//${pass}"
 else
     gum style --foreground 1 "Deployment canceled by looser."
 fi
