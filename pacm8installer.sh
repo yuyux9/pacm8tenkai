@@ -108,7 +108,7 @@ case $OS in
         ;;
 esac
 
-#~INSTALLIG PACMATE N CHECKING FOR GIT~
+#~INSTALLIG PACKMATE N CHECKING FOR GIT~
 echo " "
 if ! command -v git &> /dev/null; then
     gum spin --spinner dot --title "Installing Git" -- apt install git -y
@@ -118,12 +118,11 @@ else
 fi
 
 echo " "
-if gum confirm "Git is ready. Do you want to clone and set up Pacmate?"; then
+if gum confirm "Git is ready. Do you want to clone and set up Packmate?"; then
     git clone --recurse-submodules https://gitlab.com/yuyux9/Packmate.git
-    cd Pacmate
+    cd Packmate
     touch .env
-    gum style --foreground 2 "CulhwchFarm repository cloned successfully!"
-    cd CulhwchFarm
+    gum style --foreground 2 "Packmate repository cloned successfully!"
 else
     gum style --foreground 1 "What do you want from me then, kutabare..."
     exit 1
@@ -173,10 +172,10 @@ else
 fi
 
 echo " "
-if gum confirm "Finally, do you want to deploy your pacmate?"; then
+if gum confirm "Finally, do you want to deploy your packmate?"; then
     sudo docker-compose up --build -d
     gum style --foreground 2 --border double --border-foreground 3 --margin "1" --padding "1" \
-    "PACMATE IS RUNNING ON - ${ip}:${pport} & PACMATE CREDENTIALS - ${uname}//${pass}"
+    "PACMATE IS RUNNING ON - ${ip}:${pport} & PACkMATE CREDENTIALS - ${uname}//${pass}"
 else
     gum style --foreground 1 "Deployment canceled by looser."
 fi
