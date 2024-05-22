@@ -135,7 +135,7 @@ uname=$(gum input --placeholder 'What username do you want:')
 pass=$(gum input --placeholder 'What password do you want:')
 interface=$(gum input --placeholder 'Now tell me the name of your game interface:')
 pport=$(gum input --placeholder 'In the end of Q/A I need you to tell me your desired port:')
-cawabanga=$(gum confirm --prompt 'Ok, we are ready to make your config files, cawabanga?' --default=false)
+cawabanga=$(gum confirm --prompt 'Ok, we are ready to make your config files, cawabanga?')
 
 if $cawabanga; then
   echo "PACKMATE_LOCAL_IP=$ip
