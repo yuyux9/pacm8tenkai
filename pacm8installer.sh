@@ -1,25 +1,5 @@
 #!/usr/bin/env bash
 
-# ----------------------------------
-#-COLORZ-
-# ----------------------------------
-NOCOLOR='\033[0m'
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-ORANGE='\033[0;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-LIGHTGRAY='\033[0;37m'
-DARKGRAY='\033[1;30m'
-LIGHTRED='\033[1;31m'
-LIGHTGREEN='\033[1;32m'
-YELLOW='\033[1;33m'
-LIGHTBLUE='\033[1;34m'
-LIGHTPURPLE='\033[1;35m'
-LIGHTCYAN='\033[1;36m'
-WHITE='\033[1;37m'
-
 #~WELCOME MESSAGE~
 cat << "EOF"
                                                                              s                                   ..                     .    
@@ -42,122 +22,123 @@ cat << "EOF"
 
 EOF
 
+#~INSTALL GUM~
+echo " "
+if ! command -v gum &> /dev/null
+then
+    gum style --foreground 2 "gum not found, installing gum..."
+    sudo apt update && sudo apt install -y gum
+    if ! command -v gum &> /dev/null
+    then
+        gum style --foreground 1 "Failed to install gum. Please install it manually."
+        exit 1
+    fi
+    gum style --foreground 2 "gum installed successfully."
+fi
+
 #~CHECK IF YOU ARE CONNECTED TO THE WORLD~
 echo " "
-wget -q --spider http://google.com
-
-if
-  [ $? -eq 0 ]
-then
-  printf "${GREEN}Ok, you are online, lets begin.${NOCOLOR}"
+if wget -q --spider http://google.com; then
+    gum style --foreground 2 --bold --margin "1" "Ok, you are online, let's begin."
 else
-  printf "${RED}Seem like you are offline, i cannot pong google.com.${NOCOLOR}"
+    gum style --foreground 1 --bold --margin "1" "Seems like you are offline, I cannot ping google.com."
+    exit 1
 fi
 
 #~USER AGREEDMENT~
 echo " "
-read -p 'This script will install, set and deploy pacmate. To continue press y/n (to not): ' agree
+if ! gum confirm "This script will install, set, and deploy CulhwchFarm. Do you want to continue?"; then
+    gum style --foreground 1 "User declined. Exiting..."
+    exit 1
+fi
+  echo " "
 
-if 
-  [ "$agree" == "y" ]; then
-  echo 'Lets begin then.'
-elif 
-  [ "$agree" == "n" ]; then
-  echo 'Bye then.'
-  exit
+#~OS CHECK~
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$ID
 else
-  echo 'Ha-ha, you soo funny...'
-exit
+    gum style --foreground 1 "Error: /etc/os-release not found. Unable to determine the OS."
+    if ! gum confirm "Unable to determine the OS. Do you want to continue anyway?"; then
+        gum style --foreground 1 "Exiting due to inability to determine OS."
+        exit 1
+    fi
+    OS="unknown"
 fi
 
-#~FUNCTION FOR EXISTENSE~
-exists()
-{
-  command -v "$1" >/dev/null 2>&1
-}
+case $OS in
+    "ubuntu")
+        apt install ca-certificates curl gnupg lsb-release -y
+        mkdir /etc/apt/demokeyrings && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/demokeyrings/demodocker.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/demokeyrings/demodocker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+        apt update -y
+        apt install docker-ce docker-ce-cli containerd.io -y
+        # Docker-compose is installed separately for Ubuntu
+        curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+        ;;
 
+    "centos")
+        yum install -y epel-release
+        yum install -y ca-certificates curl gnupg lsb-release
+        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        yum install docker-ce docker-ce-cli containerd.io -y
+        systemctl start docker
+        systemctl enable docker
+        ;;
+
+
+    "debian")
+        apt-get install ca-certificates curl gnupg lsb-release -y
+        mkdir /etc/apt/demokeyrings && curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/demokeyrings/demodocker.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/demokeyrings/demodocker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+        apt-get update -y
+        apt-get install docker-ce docker-ce-cli containerd.io -y
+        # Docker-compose is installed separately for Ubuntu
+        curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+        ;;
+
+    *)
+        gum style --foreground 1 "Unsupported OS: $OS"
+        if ! gum confirm "Your OS is not officially supported. Do you want to continue anyway?"; then
+            gum style --foreground 1 "Exiting due to unsupported OS."
+            exit 1
+        fi
+        ;;
+esac
 
 #~INSTALLIG PACMATE N CHECKING FOR GIT~
 echo " "
-read -p 'Checking for git, if it installed. If not, i will install it for you - y/n: ' lzt
-
-if
-  [ "$lzt" == "n" ]
-then
-  echo 'Fuck you then.'
-  exit
-fi
-
-if
-  exists git && [ "$lzt" == "y" ]; then
-  printf "${GREEN}Git found!${NOCOLOR}"
+if ! command -v git &> /dev/null; then
+    gum spin --spinner dot --title "Installing Git" -- apt install git -y
+    gum style --foreground 2 "Git successfully installed!"
 else
-  ! exists git
-  printf "${RED}Git not found.${NOLOCOR} Installing."
-  apt install git -y 2>/dev/null &
-pid=$! # Process Id of the previous running command
-
-spin='-\|/'
-
-i=0
-while kill -0 $pid 2>/dev/null
-do
-  i=$(( (i+1) %4 ))
-  printf "\r${spin:$i:1}" " "
-  sleep .1
-done
-
-  printf "${GREEN}Successful!${NOCOLOR}"
-  echo " "
-  echo 'Now you have git.'
+    gum style --foreground 2 "Git is already installed!"
 fi
 
 echo " "
-read -p 'Git was found/install, so im ready to install pacmate, are you ready - y/n: ' git
-
-if
-  [ "$git" == "y" ]
-then
-  git clone --recurse-submodules https://gitlab.com/yuyux9/Packmate.git 2>/dev/null &
-pid=$! # Process Id of the previous running command
-
-spin='-\|/'
-
-i=0
-while kill -0 $pid 2>/dev/null
-do
-  i=$(( (i+1) %4 ))
-  printf "\r${spin:$i:1}" " "
-  sleep .1
-done
-
-printf "${GREEN}Successful!${NOCOLOR}"
-echo " "
-
-  cd Packmate
-  touch ".env"
-elif
-  [ "$git" == "n" ]
-then
-  echo 'What do you want from me then, kutabare.'
-  exit
+if gum confirm "Git is ready. Do you want to clone and set up Pacmate?"; then
+    git clone --recurse-submodules https://gitlab.com/yuyux9/Packmate.git
+    cd Pacmate
+    touch .env
+    gum style --foreground 2 "CulhwchFarm repository cloned successfully!"
+    cd CulhwchFarm
 else
-  echo 'fuck you.'
-  exit
+    gum style --foreground 1 "What do you want from me then, kutabare..."
+    exit 1
 fi
 
 #~SETTING UP PACKMATE~
 echo " "
-read -p 'Tell me ip of your game network: ' ip
-read -p 'What username do you want: ' uname
-read -p 'What password do you want: ' pass
-read -p 'Now tell me name of your game interface: ' interface
-read -p 'In the end of q/a i need you to tell me your desired port: ' pport
-read -p 'Ok, we are ready to make your config files, cawabanga - y/n: ' cawabanga
+ip=$(gum input --placeholder 'Tell me IP of your game network:')
+uname=$(gum input --placeholder 'What username do you want:')
+pass=$(gum input --placeholder 'What password do you want:')
+interface=$(gum input --placeholder 'Now tell me the name of your game interface:')
+pport=$(gum input --placeholder 'In the end of Q/A I need you to tell me your desired port:')
+cawabanga=$(gum confirm --prompt 'Ok, we are ready to make your config files, cawabanga?' --default=false)
 
-if
-  [ "$cawabanga" == "y" ]
-then
+if $cawabanga; then
   echo "PACKMATE_LOCAL_IP=$ip
 PACKMATE_WEB_LOGIN=$uname
 PACKMATE_WEB_PASSWORD=$pass
@@ -169,128 +150,35 @@ DB_PASSWORD=K604YnL3G1hp2RDkCZNjGpxbyNpNHTRA
 PACKMATE_INTERFACE=$interface" > '.env'
 
   cd docker && sed -i "s/65000/$pport/g" Dockerfile_app && cd ..
-
-  printf "${GREEN}Uuh, well, thats it, done.${NOCOLOR}"
-elif
-  [ "$cawabanga" == "n" ]
-then
-  echo 'There is need to be y, but you pick n, fuck you, uwu.'
+  gum style --foreground 2 "Uuh, well, that's it, done."
 else
-  echo 'fuck you.'
+  gum style --foreground 1 "Configuration process aborted."
   exit
 fi
 
 #~DEPLOYING PACMATE~
 echo " "
-read -p 'Checking for docker, if it installed. If not, i will install it for you - y/n: ' docker
-
-if
-  [ "$docker" == "n" ]
-then
-  echo 'Fuck you then.'
-  exit
-fi
-
-echo " "
-
-if
-  exists docker && [ "$docker" == "y" ]; then
-  printf "${GREEN}Docker found!${NOCOLOR}"
-  echo " "
+if ! command -v docker &> /dev/null; then
+    gum spin --spinner dot --title "Installing Docker" -- apt install docker -y
+    gum style --foreground 2 "Docker successfully installed!"
 else
-  ! exists
-  printf "${RED}Docker not found.${NOCOLOR} Installing." 
-  echo " "
-    apt install docker -y 2>/dev/null &
-pid=$! # Process Id of the previous running command
-
-spin='-\|/'
-
-i=0
-while kill -0 $pid 2>/dev/null
-do
-  i=$(( (i+1) %4 ))
-  printf "\r${spin:$i:1}" " "
-  sleep .1
-done
-
-printf "${GREEN}Successful!${NOCOLOR}"
-echo " "
-  
-echo " "
-echo 'Now you have docker.'
+    gum style --foreground 2 "Docker is already installed!"
 fi
 
-read -p 'Checking for docker-compose, if it installed. If not, i will install it for you - y/n: ' lztt
-
-if
-  [ "$lztt" == "n" ]
-then
-  echo 'Fuck you then.'
-  exit
-fi
-
-echo " "
-
-if
-  exists docker-compose && [ "$lztt" == "y" ]; then
-  printf "${GREEN}Docker-compose found!${NOCOLOR}"
+if ! command -v docker-compose &> /dev/null; then
+    gum spin --spinner dot --title "Installing Docker Compose" -- apt install docker-compose -y
+    gum style --foreground 2 "Docker Compose successfully installed!"
 else
-  ! exists
-  printf "${RED}Docker-compose not found.${NOCOLOR} Installing."
-  echo " "
-  apt install docker-compose -y 2>/dev/null &
-pid=$! # Process Id of the previous running command
-
-spin='-\|/'
-
-i=0
-while kill -0 $pid 2>/dev/null
-do
-  i=$(( (i+1) %4 ))
-  printf "\r${spin:$i:1}" " "
-  sleep .1
-done
-
-printf "${GREEN}Successful!${NOCOLOR}"
-echo " "
-
-  echo " "
-  echo 'Now you have docker-compose.'
+    gum style --foreground 2 "Docker Compose is already installed!"
 fi
 
-
 echo " "
-read -p 'Finally. Now we can deploy your pacmate and start analyzing some traffic! Make some noise - y/n: ' noise
-
-if
-  [ "$noise" == "y" ]
-then
-  sudo docker-compose up --build -d
-  echo " "
-  echo 'Pacmate now running in background, to stop it, type: docker-compose down.'
-  echo " "
-  echo "
-
-  +-----------------------------------+
-  |       PACMATE IS RUNNING ON       |
-  +-----------------------------------+
-                                      
-        "$ip":"$pport"
-                                      
-  +-----------------------------------+
-  +-----------------------------------+
-  |        PACMATE CREDENTIALS        |
-  +-----------------------------------+
-            "$uname"
-  
-            "$pass"
-  +-----------------------------------+
-                                            "
-elif
-  [ "$noise" == "n" ]
-then
-  echo 'As you want, cap.'
+if gum confirm "Finally, do you want to deploy your pacmate?"; then
+    sudo docker-compose up --build -d
+    gum style --foreground 2 --border double --border-foreground 3 --margin "1" --padding "1" \
+    "PACMATE IS RUNNING ON\n\n${ip}:${pport}\n\nPACMATE CREDENTIALS\n\n${uname}//${pass}"
+else
+    gum style --foreground 1 "Deployment canceled by looser."
 fi
 
 echo " "
@@ -302,5 +190,5 @@ echo "
 ⣿⣿⡇⠀⠀⢸⡿⠀⢹⣿⣿⣿⣿⣿⣿⣿⠁⢸⣿⣇⠀⢀⣿⣿⠇⠀
 ⠙⢿⣷⣶⣶⡿⠁⠀⠈⣿⣿⠟⠀⣿⣿⠇⠀⠈⠻⣿⣶⣾⡿⠋
                           "
-echo 'Thanks for using me, take care and good luck ^v^'
-echo 'by yuyu from 893crew'
+gum style --foreground 6 --bold --align center "Thanks for using me, take care and good luck ^v^"
+gum style --foreground 6 --bold --align center "by yuyu from 893crew"
