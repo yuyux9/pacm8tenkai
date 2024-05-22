@@ -118,11 +118,11 @@ else
 fi
 
 echo " "
-if gum confirm "Git is ready. Do you want to clone and set up Packmate?"; then
+if gum confirm "Git is ready. Do you want to clone Packmate?"; then
     git clone --recurse-submodules https://gitlab.com/yuyux9/Packmate.git
     cd Packmate
     touch .env
-    gum style --foreground 2 "Packmate repository cloned successfully!"
+    gum style --foreground 2 "Packmate repository cloned successfully! Next we gonna setup it!"
 else
     gum style --foreground 1 "What do you want from me then, kutabare..."
     exit 1
@@ -130,23 +130,23 @@ fi
 
 #~SETTING UP PACKMATE~
 echo " "
-ip=$(gum input --placeholder 'Tell me IP of your game network:')
-uname=$(gum input --placeholder 'What username do you want:')
-pass=$(gum input --placeholder 'What password do you want:')
-interface=$(gum input --placeholder 'Now tell me the name of your game interface:')
-pport=$(gum input --placeholder 'In the end of Q/A I need you to tell me your desired port:')
-cawabanga=$(gum confirm --prompt 'Ok, we are ready to make your config files, cawabanga?')
+if gum confirm "Ready to setup your packmate?"; then
+  ip=$(gum input --placeholder 'Tell me IP of your game network:')
+  uname=$(gum input --placeholder 'What username do you want:')
+  pass=$(gum input --placeholder 'What password do you want:')
+  interface=$(gum input --placeholder 'Now tell me the name of your game interface:')
+  pport=$(gum input --placeholder 'In the end of Q/A I need you to tell me your desired port:')
+  cawabanga=$(gum confirm --prompt 'Ok, we are ready to make your config files, cawabanga?')
 
-if $cawabanga; then
   echo "PACKMATE_LOCAL_IP=$ip
-PACKMATE_WEB_LOGIN=$uname
-PACKMATE_WEB_PASSWORD=$pass
-PACKMATE_MODE=LIVE
-OLD_STREAMS_CLEANUP_ENABLED=true
-OLD_STREAMS_CLEANUP_INTERVAL=5
-OLD_STREAMS_CLEANUP_THRESHOLD=240
-DB_PASSWORD=K604YnL3G1hp2RDkCZNjGpxbyNpNHTRA
-PACKMATE_INTERFACE=$interface" > '.env'
+  PACKMATE_WEB_LOGIN=$uname
+  PACKMATE_WEB_PASSWORD=$pass
+  PACKMATE_MODE=LIVE
+  OLD_STREAMS_CLEANUP_ENABLED=true
+  OLD_STREAMS_CLEANUP_INTERVAL=5
+  OLD_STREAMS_CLEANUP_THRESHOLD=240
+  DB_PASSWORD=K604YnL3G1hp2RDkCZNjGpxbyNpNHTRA
+  PACKMATE_INTERFACE=$interface" > '.env'
 
   cd docker && sed -i "s/65000/$pport/g" Dockerfile_app && cd ..
   gum style --foreground 2 "Uuh, well, that's it, done."
